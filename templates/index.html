@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthic Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-white h-screen flex flex-col">
+    <!-- Navbar -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-md z-20 relative">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.4)]">
+                <i class="fa-solid fa-robot text-xl"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-wider">SYNTHIC <span class="text-indigo-400 text-sm font-normal ml-2 hidden sm:inline">Termux Server</span></h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="flex h-3 w-3 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span class="text-sm text-slate-400 font-medium">Online</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        <!-- Chat Area -->
+        <section class="flex-1 flex flex-col h-full bg-[#0f172a]">
+            <!-- Messages container -->
+            <div id="chat-box" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth">
+                <!-- Welcome Message -->
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="bg-slate-800 rounded-2xl rounded-tl-none p-5 max-w-[85%] shadow-sm border border-slate-700">
+                        <p class="text-slate-200 leading-relaxed">Merhaba kanka. <strong>Tau</strong> burada, departman göreve hazır. Kishi ve Ghost da panoda bekliyor. Nasıl yardımcı olabilirim?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-slate-800/80 backdrop-blur-md border-t border-slate-700 p-4 shrink-0 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)] z-10">
+                <form id="chat-form" class="max-w-4xl mx-auto relative flex items-center">
+                    <input type="text" id="user-input" 
+                        class="w-full bg-slate-900 border border-slate-600 text-white rounded-full py-4 pl-6 pr-16 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-500 shadow-inner"
+                        placeholder="Tau'ya görev ver..." autocomplete="off">
+                    <button type="submit" id="send-btn" title="Mesaj Gönder" aria-label="Mesaj Gönder"
+                        class="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Info Panel (Hidden on mobile by default) -->
+        <aside class="hidden lg:flex w-80 bg-slate-800 border-l border-slate-700 flex-col z-10 shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)]">
+            <div class="p-5 border-b border-slate-700 bg-slate-800/50">
+                <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-network-wired text-indigo-400"></i>
+                    Sistem Durumu
+                </h2>
+            </div>
+            <div class="p-5 space-y-5 flex-1 overflow-y-auto">
+                
+                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-tie text-indigo-400"></i>
+                            <h3 class="font-medium text-sm text-slate-300">Tau (Supervisor)</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                    </div>
+                    <p class="text-xs text-slate-500">Hazır</p>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                            <h3 class="font-medium text-sm text-slate-300">Kishi</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                    </div>
+                    <p class="text-xs text-slate-500">Hazır</p>
+                </div>
+                
+                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
+                            <h3 class="font-medium text-sm text-slate-300">Ghost</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                    </div>
+                    <p class="text-xs text-slate-500">Hazır</p>
+                </div>
+
+                <div class="mt-8 bg-slate-900 rounded-xl p-4 border border-indigo-900/50 shadow-[0_0_15px_rgba(79,70,229,0.1)] relative overflow-hidden">
+                    <div class="absolute -bottom-2 -right-2 p-2 opacity-10">
+                        <i class="fa-solid fa-shield-halved text-6xl"></i>
+                    </div>
+                    <div class="flex items-center gap-3 mb-2 relative z-10">
+                        <i class="fa-solid fa-eye text-indigo-400"></i>
+                        <h3 class="font-medium text-sm text-slate-300">Watchtower</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 relative z-10 leading-relaxed">Arka plan devriyesi terminal üzerinde aktif. Uyarilar loglara düşüyor.</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Typing Indicator Template (Hidden) -->
+    <div id="typing-indicator" class="hidden flex gap-4 w-full mb-6 mt-4">
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]">
+            <i class="fa-solid fa-user-tie"></i>
+        </div>
+        <div class="bg-slate-800 rounded-2xl rounded-tl-none p-4 flex items-center gap-2 w-20 shadow-sm border border-slate-700 h-12">
+            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
+            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-300"></div>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
+        const sendBtn = document.getElementById('send-btn');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function appendMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
+            
+            const avatar = isUser ? 
+                `<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center shrink-0 border border-slate-600 shadow-sm"><i class="fa-solid fa-user text-slate-300"></i></div>` :
+                `<div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]"><i class="fa-solid fa-user-tie"></i></div>`;
+            
+            const msgClass = isUser ? 
+                'bg-indigo-600 text-white rounded-2xl rounded-tr-none shadow-md' : 
+                'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none border border-slate-700 shadow-sm';
+            
+            // Basic markdown parsing for bold and line breaks
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            div.innerHTML = `
+                ${avatar}
+                <div class="${msgClass} p-5 max-w-[85%] leading-relaxed text-[15px]">
+                    <p>${formattedText}</p>
+                </div>
+            `;
+            
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            typingIndicator.classList.remove('hidden');
+            chatBox.appendChild(typingIndicator);
+            scrollToBottom();
+            userInput.disabled = true;
+            sendBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+        }
+
+        function hideTyping() {
+            typingIndicator.classList.add('hidden');
+            userInput.disabled = false;
+            sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+            userInput.focus();
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTo({
+                top: chatBox.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendMessage(message, true);
+            userInput.value = '';
+            showTyping();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                hideTyping();
+                
+                if (data.status === 'success') {
+                    appendMessage(data.response, false);
+                } else {
+                    appendMessage('⚠️ Hata: ' + data.message, false);
+                }
+            } catch (err) {
+                hideTyping();
+                appendMessage('⚠️ Sunucu bağlantı hatası oluştu.', false);
+            }
+        });
+
+        // Initial focus
+        userInput.focus();
+    </script>
+</body>
+</html>

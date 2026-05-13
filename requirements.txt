@@ -1,0 +1,15 @@
+langchain
+langgraph
+langchain-openai
+langchain-anthropic
+chromadb
+python-dotenv
+pydantic
+langchain-community
+yfinance
+tavily-python
+duckduckgo-search
+sentence-transformers
+langchain-huggingface
+fastapi
+uvicorn
