@@ -13,3 +13,5 @@ sentence-transformers
 langchain-huggingface
 fastapi
 uvicorn
+pandas-ta
+ccxt

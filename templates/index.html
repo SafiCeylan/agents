@@ -64,50 +64,99 @@
                     Sistem Durumu
                 </h2>
             </div>
-            <div class="p-5 space-y-5 flex-1 overflow-y-auto">
+            <div class="p-5 space-y-4 flex-1 overflow-y-auto">
                 
-                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
+                <!-- Tau -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-indigo-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-user-tie text-indigo-400"></i>
-                            <h3 class="font-medium text-sm text-slate-300">Tau (Supervisor)</h3>
+                            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-user-tie text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Tau (Supervisor)</h3>
                         </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
                     </div>
-                    <p class="text-xs text-slate-500">Hazır</p>
+                    <p class="text-[10px] text-slate-500 ml-11">Hazır & Bekliyor</p>
                 </div>
 
-                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
+                <!-- Kishi -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-emerald-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-chart-line text-emerald-400"></i>
-                            <h3 class="font-medium text-sm text-slate-300">Kishi</h3>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-chart-line text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Kishi (Analyst)</h3>
                         </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
                     </div>
-                    <p class="text-xs text-slate-500">Hazır</p>
-                </div>
-                
-                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700/50 hover:border-slate-600 transition-colors">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
-                            <h3 class="font-medium text-sm text-slate-300">Ghost</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
-                    </div>
-                    <p class="text-xs text-slate-500">Hazır</p>
+                    <p class="text-[10px] text-slate-500 ml-11">Fiyatlar Takipte</p>
                 </div>
 
-                <div class="mt-8 bg-slate-900 rounded-xl p-4 border border-indigo-900/50 shadow-[0_0_15px_rgba(79,70,229,0.1)] relative overflow-hidden">
-                    <div class="absolute -bottom-2 -right-2 p-2 opacity-10">
-                        <i class="fa-solid fa-shield-halved text-6xl"></i>
+                <!-- Ghost -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-amber-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-ghost text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Ghost (Researcher)</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
                     </div>
-                    <div class="flex items-center gap-3 mb-2 relative z-10">
-                        <i class="fa-solid fa-eye text-indigo-400"></i>
-                        <h3 class="font-medium text-sm text-slate-300">Watchtower</h3>
+                    <p class="text-[10px] text-slate-500 ml-11">Haberler Taranıyor</p>
+                </div>
+
+                <!-- Atlas -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-blue-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-compass text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Atlas (Technical)</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
                     </div>
-                    <p class="text-xs text-slate-400 relative z-10 leading-relaxed">Arka plan devriyesi terminal üzerinde aktif. Uyarilar loglara düşüyor.</p>
+                    <p class="text-[10px] text-slate-500 ml-11">İndikatörler Aktif</p>
+                </div>
+
+                <!-- Nexus -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-purple-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-shield-halved text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Nexus (Risk)</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 ml-11">Pozisyon Koruma</p>
+                </div>
+
+                <!-- Vega -->
+                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-red-500/50 transition-all group">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-rocket text-sm"></i>
+                            </div>
+                            <h3 class="font-medium text-xs text-slate-300">Vega (Trade)</h3>
+                        </div>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 ml-11">Paper Trading Aktif</p>
+                </div>
+
+                <!-- Watchtower -->
+                <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-indigo-900/40 to-slate-900 border border-indigo-500/20 shadow-inner">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fa-solid fa-eye text-indigo-400 animate-pulse"></i>
+                        <h3 class="font-medium text-xs text-indigo-300 uppercase tracking-widest">Watchtower</h3>
+                    </div>
+                    <p class="text-[10px] text-slate-400 leading-relaxed italic">7/24 Piyasa Gözlemcisi Aktif. Volatilite taraması yapılıyor.</p>
                 </div>
             </div>
         </aside>
@@ -132,17 +181,33 @@
         const sendBtn = document.getElementById('send-btn');
         const typingIndicator = document.getElementById('typing-indicator');
 
-        function appendMessage(text, isUser) {
+        function appendMessage(text, isUser, agentName = "Supervisor") {
             const div = document.createElement('div');
-            div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
+            div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2 duration-300`;
             
-            const avatar = isUser ? 
-                `<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center shrink-0 border border-slate-600 shadow-sm"><i class="fa-solid fa-user text-slate-300"></i></div>` :
-                `<div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]"><i class="fa-solid fa-user-tie"></i></div>`;
+            // Ajan bazlı ikon ve renk ayarları
+            const agentStyles = {
+                "User": { bg: "bg-slate-700", icon: "fa-user", color: "text-slate-300", border: "border-slate-500", labelColor: "text-slate-400" },
+                "Supervisor": { bg: "bg-indigo-600", icon: "fa-user-tie", color: "text-white", border: "border-indigo-500", labelColor: "text-indigo-400" },
+                "Kishi": { bg: "bg-emerald-600", icon: "fa-chart-line", color: "text-white", border: "border-emerald-500", labelColor: "text-emerald-400" },
+                "Ghost": { bg: "bg-amber-600", icon: "fa-ghost", color: "text-white", border: "border-amber-500", labelColor: "text-amber-400" },
+                "Atlas": { bg: "bg-blue-600", icon: "fa-compass", color: "text-white", border: "border-blue-500", labelColor: "text-blue-400" },
+                "Nexus": { bg: "bg-purple-600", icon: "fa-shield-halved", color: "text-white", border: "border-purple-500", labelColor: "text-purple-400" },
+                "Vega": { bg: "bg-red-600", icon: "fa-rocket", color: "text-white", border: "border-red-500", labelColor: "text-red-400" }
+            };
+
+            const style = agentStyles[agentName] || agentStyles["Supervisor"];
+            
+            const avatar = `<div class="w-10 h-10 rounded-full ${style.bg} flex items-center justify-center shrink-0 shadow-lg border-2 border-slate-900 z-10"><i class="fa-solid ${style.icon} text-white text-sm"></i></div>`;
             
             const msgClass = isUser ? 
                 'bg-indigo-600 text-white rounded-2xl rounded-tr-none shadow-md' : 
-                'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none border border-slate-700 shadow-sm';
+                `bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none border-l-4 ${style.border} border-y border-r border-slate-700 shadow-sm`;
+            
+            const label = isUser ? '' : `<p class="text-[11px] font-black mb-2 ${style.labelColor} uppercase tracking-widest flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full ${style.bg}"></span>
+                ${agentName}
+            </p>`;
             
             // Basic markdown parsing for bold and line breaks
             let formattedText = text
@@ -152,6 +217,7 @@
             div.innerHTML = `
                 ${avatar}
                 <div class="${msgClass} p-5 max-w-[85%] leading-relaxed text-[15px]">
+                    ${label}
                     <p>${formattedText}</p>
                 </div>
             `;
@@ -202,9 +268,14 @@
                 hideTyping();
                 
                 if (data.status === 'success') {
-                    appendMessage(data.response, false);
+                    // Gruptaki her mesajı sırayla yaz (Grup chat hissi)
+                    for (const msg of data.responses) {
+                        appendMessage(msg.content, false, msg.agent);
+                        // Hafif bir gecikme ekle (opsiyonel, daha gerçekçi durur)
+                        await new Promise(r => setTimeout(r, 300));
+                    }
                 } else {
-                    appendMessage('⚠️ Hata: ' + data.message, false);
+                    appendMessage('⚠️ Hata: ' + data.message, false, "System");
                 }
             } catch (err) {
                 hideTyping();

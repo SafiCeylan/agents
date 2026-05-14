@@ -5,6 +5,9 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, System
 from core.brain import Brain
 from memory.vector_db import LongTermMemory
 from tools.finance import get_market_analysis, search_finance_news
+from tools.technical_analysis import get_technical_indicators
+from tools.risk_manager import calculate_risk_parameters
+from tools.trade_executor import execute_trade
 
 # Ortak Akıl (Shared State)
 class AgentState(TypedDict):
@@ -21,7 +24,7 @@ class MultiAgentSystem:
         
         # Ajan beyinlerini başlat (Her biri için farklı API veya model verilebilir)
         import os
-        # TAU — Groq / Llama 3.3 70B (limitsiz ücretsiz)
+        # TAU
         self.supervisor_brain_obj = Brain(
             model_name="llama-3.3-70b-versatile",
             backend="groq",
@@ -29,15 +32,36 @@ class MultiAgentSystem:
         )
         self.supervisor_brain = self.supervisor_brain_obj.get_llm()
 
-        # KISHI — Groq / Llama 3.3 70B (70B daha iyi araç çağrısı yapar)
+        # KISHI
         self.analyst_brain = Brain(
             model_name="llama-3.3-70b-versatile",
             backend="groq",
             api_key=os.getenv("GROQ_API_KEY")
         ).get_llm()
 
-        # GHOST — Groq / Llama 3.3 70B
+        # GHOST
         self.researcher_brain = Brain(
+            model_name="llama-3.3-70b-versatile",
+            backend="groq",
+            api_key=os.getenv("GROQ_API_KEY")
+        ).get_llm()
+
+        # ATLAS
+        self.atlas_brain = Brain(
+            model_name="llama-3.3-70b-versatile",
+            backend="groq",
+            api_key=os.getenv("GROQ_API_KEY")
+        ).get_llm()
+
+        # NEXUS
+        self.nexus_brain = Brain(
+            model_name="llama-3.3-70b-versatile",
+            backend="groq",
+            api_key=os.getenv("GROQ_API_KEY")
+        ).get_llm()
+
+        # VEGA — Trade Executor
+        self.vega_brain = Brain(
             model_name="llama-3.3-70b-versatile",
             backend="groq",
             api_key=os.getenv("GROQ_API_KEY")
@@ -46,6 +70,9 @@ class MultiAgentSystem:
         # İşçilerin kullanacağı araçlar
         self.analyst_tools = [get_market_analysis]
         self.researcher_tools = [search_finance_news]
+        self.atlas_tools = [get_technical_indicators]
+        self.nexus_tools = [calculate_risk_parameters]
+        self.vega_tools = [execute_trade]
         
         self.workflow = StateGraph(AgentState)
         self._setup_graph()
@@ -56,6 +83,9 @@ class MultiAgentSystem:
         self.workflow.add_node("supervisor", self.supervisor_node)
         self.workflow.add_node("analyst", self.analyst_node)
         self.workflow.add_node("researcher", self.researcher_node)
+        self.workflow.add_node("atlas", self.atlas_node)
+        self.workflow.add_node("nexus", self.nexus_node)
+        self.workflow.add_node("vega", self.vega_node)
 
         # Akışı tanımla
         self.workflow.set_entry_point("retrieve_memory")
@@ -68,6 +98,9 @@ class MultiAgentSystem:
             {
                 "analyst": "analyst",
                 "researcher": "researcher",
+                "atlas": "atlas",
+                "nexus": "nexus",
+                "vega": "vega",
                 "FINISH": END
             }
         )
@@ -75,6 +108,9 @@ class MultiAgentSystem:
         # İşçiler işini bitirince her zaman Şef'e döner
         self.workflow.add_edge("analyst", "supervisor")
         self.workflow.add_edge("researcher", "supervisor")
+        self.workflow.add_edge("atlas", "supervisor")
+        self.workflow.add_edge("nexus", "supervisor")
+        self.workflow.add_edge("vega", "supervisor")
 
         self.app = self.workflow.compile()
 
@@ -110,25 +146,54 @@ class MultiAgentSystem:
             f"Ziyaret Edilen Ajanlar: {visited}\n"
             "Görevin, kullanıcıya nihai bir yanıt vermek veya veri eksikse doğru ajana yönlendirmektir.\n"
             "Seçeneklerin:\n"
-            "1. 'analyst': Finansal fiyat veya borsa verisi eksikse Kishi'ye yönlendir (zaten ziyaret edilmediyse).\n"
-            "2. 'researcher': Haber, dedikodu veya güncel olay eksikse Ghost'a yönlendir (zaten ziyaret edilmediyse).\n"
-            "3. 'FINISH': Tüm gerekli ajanlar çalıştıysa veya elimdeki veriler yeterliyse FINAL yanıt ver.\n\n"
-            "YANIT FORMATI: Yönlendireceksen sadece 'ROUTE: <seçenek>' yaz. "
-            "Eğer yanıt vereceksen 'FINAL: <kullanıcıya cevabın>' şeklinde yaz."
+            "1. 'analyst': Fiyat/hacim eksikse Kishi'ye.\n"
+            "2. 'researcher': Haber duyarlılığı eksikse Ghost'a.\n"
+            "3. 'atlas': Teknik analiz (RSI/MACD) eksikse Atlas'a.\n"
+            "4. 'nexus': TÜM KOŞULLAR UYGUNSA (Bullish) risk hesabı için Nexus'a.\n"
+            "5. 'vega': Nexus planı hazırsa ve HALA BOĞA ise işlem için Vega'ya.\n"
+            "6. 'FINISH': Koşullar uygun değilse veya bittiyse kapat.\n\n"
+            "🛑 ROUTING KURALLARI (ÇOK KRİTİK):\n"
+            "SADECE 'ROUTE: <ajan_adı>' formatını kullan. ASLA başka bir kelime, açıklama veya başlık yazma.\n\n"
+            "Örnek Yanıt 1 (Kötü): 'Önce fiyatı bulalım. ROUTE: analyst'\n"
+            "Örnek Yanıt 2 (Doğru): 'ROUTE: analyst'\n\n"
+            "- ATLAS 'LONG' diyorsa: Nexus'u 'buy' yönünde çalıştır.\n"
+            "- ATLAS 'SHORT' diyorsa: Nexus'u 'sell' yönünde çalıştır.\n"
+            "- 'FINAL' komutunu sadece ve sadece işlem bittiyse (veya imkansızsa) kullan.\n\n"
+            "💬 İLETİŞİM FİLTRESİ:\n"
+            "- FINAL yanıtında ham JSON kullanma, emoji kullan ve sonucu net söyle.\n"
         )
 
         messages = [SystemMessage(content=system_prompt)] + state["messages"]
         # 429 rate limit durumunda otomatik yeniden dene
         response = self.supervisor_brain_obj.invoke_with_retry(messages).content
+        
+        # Daha esnek yönlendirme yakalama (Fallback ile)
+        response_lower = response.lower()
+        
+        target_node = None
+        if ("route: analyst" in response_lower or "analyst" in response_lower) and "analyst" not in visited:
+            target_node = "analyst"
+        elif ("route: researcher" in response_lower or "route: ghost" in response_lower or "ghost" in response_lower) and "researcher" not in visited:
+            target_node = "researcher"
+        elif ("route: atlas" in response_lower or "atlas" in response_lower) and "atlas" not in visited:
+            target_node = "atlas"
+        elif ("route: nexus" in response_lower or "nexus" in response_lower) and "nexus" not in visited:
+            target_node = "nexus"
+        elif ("route: vega" in response_lower or "vega" in response_lower) and "vega" not in visited:
+            target_node = "vega"
 
-        if response.startswith("ROUTE: analyst") and "analyst" not in visited:
-            print("Tau -> Kishi'ye Yönlendiriyor...")
-            return {"next_node": "analyst", "steps": steps, "visited": visited + ["analyst"]}
-        elif response.startswith("ROUTE: researcher") and "researcher" not in visited:
-            print("Tau -> Ghost'a Yönlendiriyor...")
-            return {"next_node": "researcher", "steps": steps, "visited": visited + ["researcher"]}
+        if target_node:
+            print(f"Tau -> {target_node.capitalize()}'e Yönlendiriyor... (Yanıt: {response[:30]}...)")
+            return {"next_node": target_node, "steps": steps, "visited": visited + [target_node]}
         else:
             final_ans = response.replace("FINAL:", "").replace("ROUTE: FINISH", "").strip()
+            # Eğer LLM hala yönlendirme kelimesi kullandıysa temizle
+            for r in ["ROUTE: analyst", "ROUTE: researcher", "ROUTE: atlas", "ROUTE: nexus", "ROUTE: vega"]:
+                final_ans = final_ans.replace(r, "").strip()
+            
+            if not final_ans:
+                final_ans = "Tau: İşlem döngüsü tamamlandı veya risk koşulları nedeniyle durduruldu."
+                
             return {"next_node": "FINISH", "steps": steps, "messages": [AIMessage(content=final_ans, name="Supervisor")]}
 
     def analyst_node(self, state: AgentState):
@@ -139,48 +204,148 @@ class MultiAgentSystem:
         response = llm_with_tools.invoke([sys_msg] + state["messages"])
         
         blackboard = state.get("shared_blackboard", {})
-        msg_content = "Kishi: Gerekli finansal veri araçla bulunamadı."
+        msg_content = "Kishi: Veri çekme hatası oluştu."
         if response.tool_calls:
+            results = []
             for tool_call in response.tool_calls:
                 tool_result = get_market_analysis.invoke(tool_call["args"])
-                # 'symbol' veya 'ticker' olarak gelebilir, ikisini de dene
                 symbol = tool_call["args"].get("symbol") or tool_call["args"].get("ticker", "UNKNOWN")
-                ts = self.memory.save_market_snapshot(
-                    symbol=symbol,
-                    data=str(tool_result),
-                    source="Kishi"
-                )
-                blackboard["Kishi_Ozeti"] = f"{symbol} sonucu [{ts}]: {tool_result}"
-            msg_content = "Kishi: Fiyat analizi tamamlandı ve Ortak Panoya + Hafizaya eklendi."
+                price = tool_result.get("current_price", "Bilinmiyor")
+                self.memory.save_market_snapshot(symbol, str(tool_result), "Kishi")
+                results.append(f"💰 **{symbol}** şu an **{price} USD** seviyesinde işlem görüyor.")
+                blackboard["Kishi_Ozeti"] = f"{symbol} fiyat: {price}"
+            msg_content = "### 📊 Fiyat Bilgisi\n" + "\n".join(results)
         elif response.content:
-            msg_content = f"Kishi: {response.content}"
+            msg_content = response.content
                 
         return {"shared_blackboard": blackboard, "messages": [AIMessage(content=msg_content, name="Kishi")]}
 
     def researcher_node(self, state: AgentState):
         """Hafiye Ajan: Haber arar ve panoya özet bırakır."""
         llm_with_tools = self.researcher_brain.bind_tools(self.researcher_tools)
-        sys_msg = SystemMessage(content="Sen Ghost'sun, Synthic'in haber ajanısın. Kullanıcının talebini incele, aracı kullanarak internetten haberleri tara.")
+        sys_msg = SystemMessage(content="Sen Ghost'sun, Synthic'in haber ajanısın. Aracı kullanarak internetten haberleri tara.")
         response = llm_with_tools.invoke([sys_msg] + state["messages"])
         
         blackboard = state.get("shared_blackboard", {})
         msg_content = "Ghost: Haber araması yapılamadı."
         if response.tool_calls:
+            results = []
             for tool_call in response.tool_calls:
                 tool_result = search_finance_news.invoke(tool_call["args"])
                 query_term = tool_call["args"].get("query", "haber")
-                # Tau emriyle: Haberleri de zaman damgalı kaydet
-                self.memory.save_market_snapshot(
-                    symbol=query_term,
-                    data=str(tool_result),
-                    source="Ghost"
-                )
+                self.memory.save_market_snapshot(query_term, str(tool_result), "Ghost")
+                results.append(str(tool_result))
                 blackboard["Ghost_Ozeti"] = f"{query_term} haberleri: {tool_result}"
-            msg_content = "Ghost: İlgili haberler tarandı, Ortak Panoya + Hafızaya eklendi."
+            msg_content = f"Piyasa Haberleri Tarandı:\n" + "\n".join(results)
         elif response.content:
-            msg_content = f"Ghost: {response.content}"
+            msg_content = response.content
                 
         return {"shared_blackboard": blackboard, "messages": [AIMessage(content=msg_content, name="Ghost")]}
+
+    def atlas_node(self, state: AgentState):
+        """Atlas Ajanı: Teknik analiz göstergelerini hesaplar."""
+        llm_with_tools = self.atlas_brain.bind_tools(self.atlas_tools)
+        sys_msg = SystemMessage(content="Sen Atlas'sın, Synthic'in teknik analistisin. Teknik göstergeleri hesapla.")
+        response = llm_with_tools.invoke([sys_msg] + state["messages"])
+        
+        blackboard = state.get("shared_blackboard", {})
+        msg_content = "Atlas: Teknik analiz yapılamadı."
+        if response.tool_calls:
+            results = []
+            for tool_call in response.tool_calls:
+                tool_result = get_technical_indicators.invoke(tool_call["args"])
+                symbol = tool_call["args"].get("symbol", "UNKNOWN")
+                
+                # YORUMLAMA VE KARAR KATMANI
+                rsi = tool_result.get("RSI", 50)
+                macd = tool_result.get("MACD", 0)
+                verdict = "NÖTR"
+                side = "none"
+                
+                if rsi > 60 and macd > 0: 
+                    verdict = "🚀 **BOĞA (LONG)** - Yükseliş trendi güçlü."
+                    side = "buy"
+                elif rsi < 40 and macd < 0: 
+                    verdict = "📉 **AYI (SHORT)** - Düşüş trendi hakim."
+                    side = "sell"
+                else:
+                    verdict = "⚖️ **NÖTR** - Net bir sinyal yok, beklemedeyiz."
+                
+                analysis_msg = f"**{symbol} Analizi:**\n- RSI: `{rsi}`\n- MACD: `{macd}`\n- **KARAR:** {verdict}"
+                blackboard["Atlas_Ozeti"] = analysis_msg
+                blackboard["Trade_Side"] = side
+                self.memory.save_market_snapshot(symbol, analysis_msg, "Atlas")
+                results.append(analysis_msg)
+            msg_content = "### 🧭 Teknik Yol Haritası\n" + "\n".join(results)
+        
+        return {"shared_blackboard": blackboard, "messages": [AIMessage(content=msg_content, name="Atlas")]}
+
+    def nexus_node(self, state: AgentState):
+        """Nexus Ajanı: Risk ve pozisyon büyüklüğü hesaplar."""
+        llm_with_tools = self.nexus_brain.bind_tools(self.nexus_tools)
+        sys_msg = SystemMessage(content=(
+            "Sen Nexus'sun, Synthic'in risk yöneticisisin. Pano verilerine bakarak lot, SL ve TP seviyelerini hesapla. "
+            "ÖNEMLİ: Sayısal değerleri mutlaka SAYI olarak gönder!"
+        ))
+        response = llm_with_tools.invoke([sys_msg] + state["messages"])
+        
+        blackboard = state.get("shared_blackboard", {})
+        msg_content = "Nexus: Risk hesabı yapılamadı."
+        if response.tool_calls:
+            results = []
+            for tool_call in response.tool_calls:
+                args = tool_call["args"]
+                if "balance" not in args: args["balance"] = 10000.0
+                tool_result = calculate_risk_parameters.invoke(args)
+                blackboard["Nexus_Ozeti"] = f"Risk Planı: {tool_result}"
+                
+                # PRETTY FORMAT
+                bal = tool_result.get("balance", 0)
+                risk_usd = tool_result.get("risk_amount_usd", 0)
+                ep = tool_result.get("entry_price", 0)
+                sl = tool_result.get("stop_loss", 0)
+                tp = tool_result.get("take_profit", 0)
+                qty = tool_result.get("quantity", 0)
+                rr = tool_result.get("risk_reward_ratio", "N/A")
+                
+                pretty_msg = (
+                    f"**💰 Bakiye:** `{bal} USD` | **🛡️ Riske Edilen:** `{risk_usd} USD`\n\n"
+                    f"**🎯 Giriş:** `{ep}` | **🛑 SL:** `{sl}` | **✅ TP:** `{tp}`\n\n"
+                    f"**📦 Lot:** `{qty}` | **⚖️ R/R:** `{rr}`"
+                )
+                results.append(pretty_msg)
+            msg_content = "### 🛡️ Risk ve Pozisyon Yönetimi Planı\n" + "\n\n".join(results)
+        
+        return {"shared_blackboard": blackboard, "messages": [AIMessage(content=msg_content, name="Nexus")]}
+
+    def vega_node(self, state: AgentState):
+        """Vega Ajanı: İşlemleri uygular. SON KONTROL YAPAR."""
+        llm_with_tools = self.vega_brain.bind_tools(self.vega_tools)
+        sys_msg = SystemMessage(content=(
+            "Sen Vega'sın. İşlemi yapmadan önce panodaki Atlas verisine bak. "
+            "Eğer Atlas 'AYI' veya 'SAT' diyorsa işlemi REDDET ve 'Koşullar uygun değil, işlem iptal edildi' de. "
+            "Sadece her şey BOĞA ise emri ilet."
+        ))
+        response = llm_with_tools.invoke([sys_msg] + state["messages"])
+        
+        blackboard = state.get("shared_blackboard", {})
+        msg_content = "Vega: İşlem uygulanamadı."
+        if response.tool_calls:
+            results = []
+            for tool_call in response.tool_calls:
+                tool_result = execute_trade.invoke(tool_call["args"])
+                blackboard["Vega_Ozeti"] = f"İşlem Sonucu: {tool_result}"
+                self.memory.add_memory(f"İşlem Kaydı: {tool_result}")
+                
+                # PRETTY FORMAT
+                stat = tool_result.get("status", "Bilinmiyor")
+                msg = tool_result.get("message", "Açıklama yok")
+                icon = "✅" if stat.lower() == "success" else "❌"
+                trade_info = f"{icon} **Durum:** {stat}\n📝 **Mesaj:** {msg}"
+                results.append(trade_info)
+            msg_content = "### 🚀 İşlem Raporu\n" + "\n\n".join(results)
+        
+        return {"shared_blackboard": blackboard, "messages": [AIMessage(content=msg_content, name="Vega")]}
 
     def run(self, user_input: str):
         """Sistemi başlatır."""
@@ -198,9 +363,11 @@ class MultiAgentSystem:
         
         # Tau: Soru-Cevap özetini ve pano verilerini genel hafızaya kaydet
         blackboard = result.get("shared_blackboard", {})
+        final_response = result["messages"][-1].content
         memory_entry = f"Soru: {user_input}\nTau'nun Kararı: {final_response}"
         if blackboard:
             memory_entry += f"\nKishi/Ghost Panosası: {blackboard}"
         self.memory.add_memory(memory_entry)
         
-        return final_response
+        # Tüm mesaj listesini döndür (ilk mesaj kullanıcı olduğu için onu atla)
+        return result["messages"][1:]
