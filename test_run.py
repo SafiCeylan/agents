@@ -19,7 +19,13 @@ def run_single_test(question):
 
     print("Şef Ajan analiz ediyor...")
     response = ns.run(question)
-    print(f"\nAsistan Yanıtı:\n{response}")
+    
+    try:
+        print(f"\nAsistan Yanıtı:\n{response}")
+    except UnicodeEncodeError:
+        # Windows terminalinde emoji hatasını önlemek için
+        safe_response = str(response).encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding)
+        print(f"\nAsistan Yaniti (UTF-8 Karakterler Degistirildi):\n{safe_response}")
 
 if __name__ == "__main__":
     query = sys.argv[1] if len(sys.argv) > 1 else "BTC-USD fiyatı nedir ve benim için uygun mu?"

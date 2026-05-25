@@ -60,6 +60,17 @@ class Brain:
                     raise
         return self.llm.invoke(messages)
 
+    def safe_invoke(self, llm_with_tools, messages):
+        """Araç kullanırken oluşan Groq 400 vb. hataları yakalar ve çökmeyi önler."""
+        from langchain_core.messages import AIMessage
+        try:
+            return llm_with_tools.invoke(messages)
+        except Exception as e:
+            err = str(e)
+            print(f"[Brain] LLM Invoke Hatası: {err}")
+            # Eğer model tool formatını bozarsa 400 atar, sistemi çökertmek yerine kibarca yanıt dönüyoruz.
+            return AIMessage(content="Sistem geçici bir ağ veya analiz kesintisi yaşadı. Lütfen talebini farklı kelimelerle tekrarla.")
+
     def switch_model(self, model_name):
         self.model_name = model_name
         self.llm = self._initialize_llm()

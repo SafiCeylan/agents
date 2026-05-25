@@ -1,290 +1,712 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Synthic Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>SYNTHIC AI | Stardust Interface</title>
+    <!-- React and Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #040B14; overflow: hidden; font-family: sans-serif; }
+        #root { height: 100%; }
+        * { box-sizing: border-box; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white h-screen flex flex-col">
-    <!-- Navbar -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-md z-20 relative">
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.4)]">
-                <i class="fa-solid fa-robot text-xl"></i>
-            </div>
-            <h1 class="text-xl font-bold tracking-wider">SYNTHIC <span class="text-indigo-400 text-sm font-normal ml-2 hidden sm:inline">Termux Server</span></h1>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="flex h-3 w-3 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span class="text-sm text-slate-400 font-medium">Online</span>
-        </div>
-    </header>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        /* {% raw %} */
+        const { useState, useEffect, useRef } = React;
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        <!-- Chat Area -->
-        <section class="flex-1 flex flex-col h-full bg-[#0f172a]">
-            <!-- Messages container -->
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth">
-                <!-- Welcome Message -->
-                <div class="flex gap-4">
-                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]">
-                        <i class="fa-solid fa-user-tie"></i>
-                    </div>
-                    <div class="bg-slate-800 rounded-2xl rounded-tl-none p-5 max-w-[85%] shadow-sm border border-slate-700">
-                        <p class="text-slate-200 leading-relaxed">Merhaba kanka. <strong>Tau</strong> burada, departman göreve hazır. Kishi ve Ghost da panoda bekliyor. Nasıl yardımcı olabilirim?</p>
-                    </div>
-                </div>
-            </div>
+        const GF = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap";
 
-            <!-- Input Area -->
-            <div class="bg-slate-800/80 backdrop-blur-md border-t border-slate-700 p-4 shrink-0 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)] z-10">
-                <form id="chat-form" class="max-w-4xl mx-auto relative flex items-center">
-                    <input type="text" id="user-input" 
-                        class="w-full bg-slate-900 border border-slate-600 text-white rounded-full py-4 pl-6 pr-16 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-500 shadow-inner"
-                        placeholder="Tau'ya görev ver..." autocomplete="off">
-                    <button type="submit" id="send-btn" title="Mesaj Gönder" aria-label="Mesaj Gönder"
-                        class="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md">
-                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-                    </button>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Info Panel (Hidden on mobile by default) -->
-        <aside class="hidden lg:flex w-80 bg-slate-800 border-l border-slate-700 flex-col z-10 shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)]">
-            <div class="p-5 border-b border-slate-700 bg-slate-800/50">
-                <h2 class="font-semibold text-slate-200 flex items-center gap-2">
-                    <i class="fa-solid fa-network-wired text-indigo-400"></i>
-                    Sistem Durumu
-                </h2>
-            </div>
-            <div class="p-5 space-y-4 flex-1 overflow-y-auto">
-                
-                <!-- Tau -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-indigo-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-user-tie text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Tau (Supervisor)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">Hazır & Bekliyor</p>
-                </div>
+        const AGENTS = [
+            { id:"TAU",    name:"TAU",    role:"Supervisor",  color:"#7C6FE0" },
+            { id:"KISHI",  name:"KISHI",  role:"Analyst",     color:"#00D4FF" },
+            { id:"GHOST",  name:"GHOST",  role:"Researcher",  color:"#A78BFA" },
+            { id:"ATLAS",  name:"ATLAS",  role:"Technical",   color:"#34D399" },
+            { id:"NEXUS",  name:"NEXUS",  role:"Risk Mgmt",   color:"#F87171" },
+            { id:"VEGA",   name:"VEGA",   role:"Trader",      color:"#FBBF24" },
+            { id:"CYPHER", name:"CYPHER", role:"OS Agent",    color:"#F97316" },
+        ];
 
-                <!-- Kishi -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-emerald-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-chart-line text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Kishi (Analyst)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">Fiyatlar Takipte</p>
-                </div>
+        const INIT_TASKS = [
+            { id:"TSK-041", agentId:"KISHI",  title:"BTC/USDT fiyat analizi",        progress:72, color:"#00D4FF" },
+            { id:"TSK-042", agentId:"GHOST",  title:"Fed haber taraması",            progress:41, color:"#A78BFA" },
+            { id:"TSK-043", agentId:"ATLAS",  title:"RSI + MACD sinyal kontrolü",    progress:88, color:"#34D399" },
+            { id:"TSK-039", agentId:"VEGA",   title:"ETH limit emir iptali",         progress:100, color:"#FBBF24" },
+            { id:"TSK-044", agentId:"CYPHER", title:"Sistem bellek temizliği (OS)",  progress:25, color:"#F97316" }
+        ];
 
-                <!-- Ghost -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-amber-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-ghost text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Ghost (Researcher)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">Haberler Taranıyor</p>
-                </div>
+        const INIT_CHAT = [
+            { id:1, from:"TAU", text:"Tüm sistemler aktif. Departman göreve hazır.", ts:"08:14" },
+        ];
 
-                <!-- Atlas -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-blue-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-compass text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Atlas (Technical)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">İndikatörler Aktif</p>
-                </div>
-
-                <!-- Nexus -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-purple-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-shield-halved text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Nexus (Risk)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">Pozisyon Koruma</p>
-                </div>
-
-                <!-- Vega -->
-                <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 hover:border-red-500/50 transition-all group">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-rocket text-sm"></i>
-                            </div>
-                            <h3 class="font-medium text-xs text-slate-300">Vega (Trade)</h3>
-                        </div>
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 ml-11">Paper Trading Aktif</p>
-                </div>
-
-                <!-- Watchtower -->
-                <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-indigo-900/40 to-slate-900 border border-indigo-500/20 shadow-inner">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="fa-solid fa-eye text-indigo-400 animate-pulse"></i>
-                        <h3 class="font-medium text-xs text-indigo-300 uppercase tracking-widest">Watchtower</h3>
-                    </div>
-                    <p class="text-[10px] text-slate-400 leading-relaxed italic">7/24 Piyasa Gözlemcisi Aktif. Volatilite taraması yapılıyor.</p>
-                </div>
-            </div>
-        </aside>
-    </main>
-
-    <!-- Typing Indicator Template (Hidden) -->
-    <div id="typing-indicator" class="hidden flex gap-4 w-full mb-6 mt-4">
-        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(79,70,229,0.3)]">
-            <i class="fa-solid fa-user-tie"></i>
-        </div>
-        <div class="bg-slate-800 rounded-2xl rounded-tl-none p-4 flex items-center gap-2 w-20 shadow-sm border border-slate-700 h-12">
-            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
-            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
-            <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-300"></div>
-        </div>
-    </div>
-
-    <script>
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const chatBox = document.getElementById('chat-box');
-        const sendBtn = document.getElementById('send-btn');
-        const typingIndicator = document.getElementById('typing-indicator');
-
-        function appendMessage(text, isUser, agentName = "Supervisor") {
-            const div = document.createElement('div');
-            div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2 duration-300`;
+        const CSS = `
+            @import url('${GF}');
+            .app-container { width: 100%; height: 100vh; display: flex; flex-direction: column; background: radial-gradient(circle at center, #071626 0%, #02060C 100%); color: #C8E6FF; font-family: 'Inter', sans-serif; position: relative; overflow: hidden; }
+            .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid rgba(0, 212, 255, 0.1); background: rgba(0, 10, 20, 0.8); backdrop-filter: blur(10px); z-index: 30; }
+            .logo-area { display: flex; align-items: center; gap: 12px; font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: #FFF; }
+            .logo-icon { width: 20px; height: 20px; background: radial-gradient(circle, #00D4FF, transparent); border-radius: 50%; box-shadow: 0 0 15px #00D4FF; }
             
-            // Ajan bazlı ikon ve renk ayarları
-            const agentStyles = {
-                "User": { bg: "bg-slate-700", icon: "fa-user", color: "text-slate-300", border: "border-slate-500", labelColor: "text-slate-400" },
-                "Supervisor": { bg: "bg-indigo-600", icon: "fa-user-tie", color: "text-white", border: "border-indigo-500", labelColor: "text-indigo-400" },
-                "Kishi": { bg: "bg-emerald-600", icon: "fa-chart-line", color: "text-white", border: "border-emerald-500", labelColor: "text-emerald-400" },
-                "Ghost": { bg: "bg-amber-600", icon: "fa-ghost", color: "text-white", border: "border-amber-500", labelColor: "text-amber-400" },
-                "Atlas": { bg: "bg-blue-600", icon: "fa-compass", color: "text-white", border: "border-blue-500", labelColor: "text-blue-400" },
-                "Nexus": { bg: "bg-purple-600", icon: "fa-shield-halved", color: "text-white", border: "border-purple-500", labelColor: "text-purple-400" },
-                "Vega": { bg: "bg-red-600", icon: "fa-rocket", color: "text-white", border: "border-red-500", labelColor: "text-red-400" }
+            .main-content { flex: 1; position: relative; overflow: hidden; }
+            .stardust-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+            canvas { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+            
+            .orb-wrapper { position: absolute; transform: translate(-50%, -50%); z-index: 10; }
+            .agent-orb { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; transition: all 0.3s ease; cursor: pointer; border: 2px solid; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+            .agent-orb.tau-center { width: 64px; height: 64px; font-size: 14px; box-shadow: 0 0 30px rgba(124, 111, 224, 0.5), inset 0 0 20px rgba(124, 111, 224, 0.5); z-index: 50; }
+            .agent-orb.active:not(.tau-center) { transform: scale(1.4); }
+            .agent-orb.tau-center.active { transform: scale(1.1); }
+            .agent-orb.has-task { animation: taskPulse 2s infinite; }
+            .agent-orb.dimmed { opacity: 0.3; filter: grayscale(100%); }
+            @keyframes taskPulse { 0% { box-shadow: 0 0 5px var(--ac), inset 0 0 2px var(--ac); } 50% { box-shadow: 0 0 20px var(--ac), inset 0 0 10px var(--ac); } 100% { box-shadow: 0 0 5px var(--ac), inset 0 0 2px var(--ac); } }
+            
+            .agent-tooltip { position: absolute; bottom: calc(100% + 15px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid var(--ac); padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #FFF; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; font-family: 'Inter', sans-serif; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 4px; text-align: center; }
+            .agent-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: var(--ac) transparent transparent transparent; }
+            .orb-wrapper:hover .agent-tooltip { opacity: 1; }
+            .agent-badge { position: absolute; top: -4px; right: -4px; background: #EF4444; color: #FFF; font-size: 8px; font-weight: 900; padding: 3px 6px; border-radius: 10px; box-shadow: 0 0 10px #EF4444; z-index: 20; animation: flash 1.5s infinite alternate; font-family: sans-serif; }
+            @keyframes flash { from { opacity: 1; transform: scale(1); } to { opacity: 0.7; transform: scale(1.1); } }
+
+            .panels-layer { position: absolute; inset: 0; display: flex; justify-content: space-between; pointer-events: none; overflow: hidden; }
+            .left-panel, .right-panel { pointer-events: auto; height: 100%; padding: 20px; display: flex; flex-direction: column; gap: 20px; background: rgba(4, 11, 20, 0.65); backdrop-filter: blur(8px); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+            .left-panel { width: 310px; border-right: 1px solid rgba(0,212,255,0.15); box-shadow: 10px 0 30px rgba(0,0,0,0.3); }
+            .right-panel { width: 380px; border-left: 1px solid rgba(0,212,255,0.15); box-shadow: -10px 0 30px rgba(0,0,0,0.3); }
+            
+            .cinematic .left-panel { transform: translateX(-100%); }
+            .cinematic .right-panel { transform: translateX(100%); }
+
+            .panel-title { font-family: 'Orbitron', sans-serif; font-size: 12px; color: #00D4FF; letter-spacing: 2px; border-bottom: 1px solid rgba(0,212,255,0.2); padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+            .tabs { display: flex; gap: 15px; margin-bottom: 10px; border-bottom: 1px solid rgba(0,212,255,0.1); }
+            .tab { font-size: 10px; font-family: 'Orbitron'; color: #64748B; cursor: pointer; padding-bottom: 6px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+            .tab.active { color: #00D4FF; border-bottom-color: #00D4FF; }
+            
+            .metric-block { margin-bottom: 15px; }
+            .metric-row { display: flex; justify-content: space-between; font-size: 11px; color: #8CA3B8; font-family: 'Orbitron', monospace; }
+            .metric-val { color: #FFF; font-weight: 700; }
+            .metric-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+            .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease-in-out, background-color 1s ease; }
+            
+            .task-item { background: rgba(0,212,255,0.03); border: 1px solid rgba(0,212,255,0.1); padding: 12px; border-radius: 6px; margin-bottom: 10px; transition: opacity 0.3s; }
+            .task-header { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; color: #8CA3B8; }
+            .task-title { font-size: 12px; color: #C8E6FF; margin-bottom: 10px; line-height: 1.4; }
+            .task-bar-bg { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+            .task-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+
+            .pos-card { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 12px; margin-bottom: 10px; font-size: 11px; }
+            .pos-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Orbitron'; font-size: 12px; }
+            .pos-body { display: flex; justify-content: space-between; color: #8CA3B8; }
+
+            .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 10px; }
+            .chat-messages::-webkit-scrollbar { width: 4px; }
+            .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
+            .chat-msg { padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.5; max-width: 85%; word-wrap: break-word; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: opacity 0.3s; }
+            .chat-msg h3 { margin-top: 0; margin-bottom: 8px; font-size: 14px; color: #FFF; font-family: 'Orbitron', sans-serif; }
+            .chat-msg p { margin: 0 0 5px 0; }
+            .chat-msg strong { color: #FFF; font-weight: 700; }
+            .chat-msg ul { margin: 5px 0 5px 20px; padding: 0; }
+            .chat-msg li { margin-bottom: 3px; }
+            .chat-msg code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 3px; font-family: monospace; font-size: 11px; }
+            .msg-user { align-self: flex-end; background: #0E2A47; border: 1px solid #1A4D7E; color: #E0F2FE; border-bottom-right-radius: 2px; }
+            .msg-agent { align-self: flex-start; background: rgba(10, 15, 25, 0.8); border: 1px solid; border-bottom-left-radius: 2px; }
+            .msg-header { font-size: 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
+            .msg-ts { font-size: 9px; opacity: 0.5; margin-top: 6px; text-align: right; }
+
+            .chat-input-area { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,212,255,0.1); }
+            .chat-input { flex: 1; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); color: #FFF; padding: 12px 15px; font-family: 'Inter', sans-serif; font-size: 13px; border-radius: 6px; outline: none; transition: all 0.2s; }
+            .chat-input:focus { border-color: rgba(0,212,255,0.5); background: rgba(0,212,255,0.08); }
+            .btn-action { background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.3); color: #00D4FF; cursor: pointer; padding: 0 15px; border-radius: 6px; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+            .btn-action:hover:not(:disabled) { background: rgba(0,212,255,0.3); }
+            .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+            .btn-mic { padding: 0 12px; font-size: 16px; }
+            .btn-mic.recording { background: rgba(239, 68, 68, 0.2); border-color: #EF4444; color: #EF4444; animation: flash 1s infinite alternate; }
+
+            .velocity-panel { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(4, 15, 30, 0.8); border: 1px solid rgba(0, 212, 255, 0.2); padding: 12px 20px; border-radius: 8px; backdrop-filter: blur(10px); width: 250px; pointer-events: auto; z-index: 20; transition: opacity 0.5s; }
+            .cinematic .velocity-panel { opacity: 0; pointer-events: none; }
+            
+            .vp-header { font-family: 'Orbitron', sans-serif; font-size: 10px; color: #00D4FF; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; letter-spacing: 1px; }
+            .vp-slider { width: 100%; appearance: none; height: 4px; background: rgba(0,212,255,0.2); border-radius: 2px; outline: none; margin-bottom: 8px; }
+            .vp-slider::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #00D4FF; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px #00D4FF; }
+            .vp-value { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: #FFF; }
+            
+            .center-info { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; transition: opacity 0.5s; z-index: 20; }
+            .cinematic .center-info { opacity: 0; }
+            .status-text { font-family: 'Orbitron', sans-serif; color: #00D4FF; font-size: 16px; letter-spacing: 4px; font-weight: 600; margin-bottom: 8px; text-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
+            .status-sub { color: #8CA3B8; font-size: 14px; }
+            .active-agent-desc { margin-top: 15px; font-size: 14px; color: #FFF; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; border: 1px solid; display: inline-block; transition: all 0.3s; }
+            .focus-btn { background: rgba(0,212,255,0.2); border: 1px solid #00D4FF; color: #FFF; padding: 4px 12px; border-radius: 12px; font-size: 10px; cursor: pointer; pointer-events: auto; font-family: 'Orbitron'; margin-top: 10px; transition: 0.2s; }
+            .focus-btn:hover { background: rgba(0,212,255,0.4); }
+
+            .cine-toggle { background: transparent; border: 1px solid #00D4FF; color: #00D4FF; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; pointer-events: auto; transition: 0.3s; }
+            .cine-toggle:hover { background: rgba(0,212,255,0.2); }
+        `;
+
+        // SFX Engine using Web Audio API
+        const SFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            },
+            play(type) {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                if (type === 'hover') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+                } else if (type === 'click') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+                } else if (type === 'message') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.setValueAtTime(800, this.ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.3);
+                }
+            }
+        };
+
+        function StardustUI() {
+            const canvasRef = useRef(null);
+            const [velocity, setVelocity] = useState(0.2);
+            const [activeAgent, setActiveAgent] = useState(AGENTS[0]);
+            const [focusAgentId, setFocusAgentId] = useState(null);
+            const [radius, setRadius] = useState(250);
+            const rotationRef = useRef(0);
+            const particlesRef = useRef([]);
+            const holoRef = useRef([]);
+
+            const [chat, setChat] = useState(INIT_CHAT);
+            const [input, setInput] = useState("");
+            const [isProcessing, setIsProcessing] = useState(false);
+            const chatRef = useRef(null);
+            const nextId = useRef(10);
+            
+            const [cpu, setCpu] = useState(45);
+            const [mem, setMem] = useState(60);
+            const [net, setNet] = useState(110);
+            const [tasks, setTasks] = useState(INIT_TASKS);
+            const [tab, setTab] = useState("ACTIVE");
+            const [alerts, setAlerts] = useState([ { id: 1, agentId: "ATLAS", msg: "API Limit Aşımı" } ]);
+            const [positions, setPositions] = useState([ { id: "POS-01", agentId: "VEGA", symbol: "BTC/USDT", type: "LONG", entry: 64200, current: 64550, pnl: "+0.54%", pnlColor: "#34D399" } ]);
+            
+            const [isCinematic, setIsCinematic] = useState(false);
+            const [isRecording, setIsRecording] = useState(false);
+            const recognition = useRef(null);
+
+            useEffect(() => {
+                // Initialize SpeechRecognition
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    recognition.current = new SpeechRecognition();
+                    recognition.current.lang = 'tr-TR';
+                    recognition.current.interimResults = false;
+                    recognition.current.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        setInput(transcript);
+                        setIsRecording(false);
+                        SFX.play('click');
+                    };
+                    recognition.current.onerror = () => setIsRecording(false);
+                    recognition.current.onend = () => setIsRecording(false);
+                }
+            }, []);
+
+            const toggleMic = () => {
+                SFX.init(); SFX.play('click');
+                if (isRecording) { recognition.current?.stop(); setIsRecording(false); }
+                else { recognition.current?.start(); setIsRecording(true); }
             };
 
-            const style = agentStyles[agentName] || agentStyles["Supervisor"];
-            
-            const avatar = `<div class="w-10 h-10 rounded-full ${style.bg} flex items-center justify-center shrink-0 shadow-lg border-2 border-slate-900 z-10"><i class="fa-solid ${style.icon} text-white text-sm"></i></div>`;
-            
-            const msgClass = isUser ? 
-                'bg-indigo-600 text-white rounded-2xl rounded-tr-none shadow-md' : 
-                `bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none border-l-4 ${style.border} border-y border-r border-slate-700 shadow-sm`;
-            
-            const label = isUser ? '' : `<p class="text-[11px] font-black mb-2 ${style.labelColor} uppercase tracking-widest flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full ${style.bg}"></span>
-                ${agentName}
-            </p>`;
-            
-            // Basic markdown parsing for bold and line breaks
-            let formattedText = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+            useEffect(() => {
+                const iv = setInterval(() => {
+                    setCpu(c => Math.max(10, Math.min(95, c + (Math.random() - 0.5) * 15)));
+                    setMem(m => Math.max(20, Math.min(90, m + (Math.random() - 0.5) * 5)));
+                    setNet(n => Math.max(50, Math.min(300, n + (Math.random() - 0.5) * 30)));
+                    
+                    setTasks(prev => prev.map(t => {
+                        if (t.progress < 100) return { ...t, progress: Math.min(100, t.progress + Math.floor(Math.random() * 5)) };
+                        return t;
+                    }));
+                }, 1500);
+                return () => clearInterval(iv);
+            }, []);
 
-            div.innerHTML = `
-                ${avatar}
-                <div class="${msgClass} p-5 max-w-[85%] leading-relaxed text-[15px]">
-                    ${label}
-                    <p>${formattedText}</p>
-                </div>
-            `;
-            
-            chatBox.appendChild(div);
-            scrollToBottom();
-        }
+            useEffect(() => {
+                const handleResize = () => { const h = window.innerHeight; setRadius(Math.min(300, h * 0.28)); };
+                handleResize();
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
 
-        function showTyping() {
-            typingIndicator.classList.remove('hidden');
-            chatBox.appendChild(typingIndicator);
-            scrollToBottom();
-            userInput.disabled = true;
-            sendBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-        }
+            // Master Animation Loop (Particles + Laser Graph + Audio Visualizer)
+            useEffect(() => {
+                const cvs = canvasRef.current;
+                const ctx = cvs.getContext('2d');
+                const size = radius * 2 + 200;
+                cvs.width = size; cvs.height = size;
 
-        function hideTyping() {
-            typingIndicator.classList.add('hidden');
-            userInput.disabled = false;
-            sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-            userInput.focus();
-        }
-
-        function scrollToBottom() {
-            chatBox.scrollTo({
-                top: chatBox.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const message = userInput.value.trim();
-            if (!message) return;
-
-            appendMessage(message, true);
-            userInput.value = '';
-            showTyping();
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
-
-                const data = await response.json();
-                hideTyping();
-                
-                if (data.status === 'success') {
-                    // Gruptaki her mesajı sırayla yaz (Grup chat hissi)
-                    for (const msg of data.responses) {
-                        appendMessage(msg.content, false, msg.agent);
-                        // Hafif bir gecikme ekle (opsiyonel, daha gerçekçi durur)
-                        await new Promise(r => setTimeout(r, 300));
+                if (particlesRef.current.length === 0) {
+                    const pts = [];
+                    for(let i=0; i<1500; i++) {
+                        const a = Math.random() * Math.PI * 2;
+                        const u = 1 - Math.random(); const v = Math.random();
+                        const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                        pts.push({ angle: a, radius: radius + z * 30, size: Math.random() * 1.5 + 0.5, speedMulti: Math.random() * 0.3 + 0.85, color: Math.random() > 0.7 ? '#FFF' : (Math.random() > 0.3 ? '#00D4FF' : '#38BDF8'), alpha: Math.random() * 0.7 + 0.3 });
                     }
-                } else {
-                    appendMessage('⚠️ Hata: ' + data.message, false, "System");
+                    particlesRef.current = pts;
                 }
-            } catch (err) {
-                hideTyping();
-                appendMessage('⚠️ Sunucu bağlantı hatası oluştu.', false);
-            }
-        });
+                
+                if (holoRef.current.length === 0) {
+                    const hPts = [];
+                    const numPoints = 250;
+                    const phi = Math.PI * (3 - Math.sqrt(5)); // golden angle
+                    for(let i=0; i<numPoints; i++) {
+                        const y = 1 - (i / (numPoints - 1)) * 2; 
+                        const radiusAtY = Math.sqrt(1 - y * y);
+                        const theta = phi * i;
+                        const x = Math.cos(theta) * radiusAtY;
+                        const z = Math.sin(theta) * radiusAtY;
+                        hPts.push({x, y, z, layer: 1}); // Outer shell
+                        if (i % 2 === 0) {
+                            hPts.push({x: x*0.5, y: y*0.5, z: z*0.5, layer: 2}); // Inner core
+                        }
+                    }
+                    holoRef.current = hPts;
+                }
 
-        // Initial focus
-        userInput.focus();
+                let animId;
+                let lastTime = performance.now();
+                let visualizerTime = 0;
+
+                const loop = (time) => {
+                    const dt = (time - lastTime) / 1000;
+                    lastTime = time;
+                    rotationRef.current += velocity * dt;
+                    visualizerTime += dt;
+
+                    ctx.clearRect(0, 0, size, size);
+                    const cx = size / 2; const cy = size / 2;
+
+                    // 1. Draw 3D Holographic Sphere
+                    ctx.save();
+                    const globeRadius = 50 + (isProcessing ? Math.sin(visualizerTime*15)*2 : 0);
+                    const focalLength = 250;
+                    const theta = visualizerTime * (isProcessing ? 2.5 : 0.6);
+                    const colorHue = isProcessing ? "251, 191, 36" : "0, 212, 255";
+                    
+                    // Optional center glow
+                    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, globeRadius * 1.5);
+                    grad.addColorStop(0, `rgba(${colorHue}, 0.15)`);
+                    grad.addColorStop(1, "transparent");
+                    ctx.fillStyle = grad;
+                    ctx.beginPath(); ctx.arc(cx, cy, globeRadius * 1.5, 0, Math.PI*2); ctx.fill();
+
+                    for (let i = 0; i < holoRef.current.length; i++) {
+                        const p = holoRef.current[i];
+                        // Layer 1 rotates normal, Layer 2 rotates backwards faster
+                        const layerTheta = p.layer === 1 ? theta : -theta * 1.5;
+                        
+                        const rx = p.x * Math.cos(layerTheta) - p.z * Math.sin(layerTheta);
+                        const rz = p.x * Math.sin(layerTheta) + p.z * Math.cos(layerTheta);
+                        const ry = p.y;
+                        
+                        // Tilt the globe slightly forwards
+                        const tilt = 0.3;
+                        const fx = rx;
+                        const fy = ry * Math.cos(tilt) - rz * Math.sin(tilt);
+                        const fz = ry * Math.sin(tilt) + rz * Math.cos(tilt);
+
+                        const z3d = fz * globeRadius;
+                        const scale = focalLength / (focalLength + z3d);
+                        const px = cx + fx * globeRadius * scale;
+                        const py = cy + fy * globeRadius * scale;
+                        
+                        // Depth fading (Z sorting trick with opacity)
+                        const normalizedZ = (z3d + globeRadius) / (2 * globeRadius); // 0 to 1
+                        const alpha = 0.1 + (1 - normalizedZ) * 0.9;
+                        const size = (p.layer === 1 ? 1.5 : 1) * scale;
+                        
+                        ctx.beginPath();
+                        ctx.arc(px, py, size, 0, Math.PI*2);
+                        ctx.fillStyle = `rgba(${colorHue}, ${alpha})`;
+                        ctx.fill();
+                    }
+                    ctx.restore();
+
+                    // 2. Draw Stardust Particles
+                    for(let i=0; i<particlesRef.current.length; i++) {
+                        const p = particlesRef.current[i];
+                        const currentAngle = p.angle + rotationRef.current * p.speedMulti;
+                        ctx.beginPath();
+                        ctx.arc(cx + p.radius * Math.cos(currentAngle), cy + p.radius * Math.sin(currentAngle), p.size, 0, Math.PI*2);
+                        ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+                    }
+                    ctx.globalAlpha = 1.0;
+
+                    // 3. Draw Laser Connections (Node Graph)
+                    // Retrieve actual positions of agents using agentsData state trick
+                    // To do this cleanly in canvas without React state delays, we calculate their pos here too
+                    const rot = rotationRef.current;
+                    const agentCoords = {};
+                    
+                    // TAU is always at the center
+                    agentCoords["TAU"] = { x: cx, y: cy, color: "#7C6FE0" };
+
+                    const WORKER_AGENTS = AGENTS.filter(a => a.id !== "TAU");
+                    WORKER_AGENTS.forEach((ag, i) => {
+                        const baseAngle = (i / WORKER_AGENTS.length) * Math.PI * 2;
+                        const currentAngle = baseAngle + rot - Math.PI/2;
+                        agentCoords[ag.id] = {
+                            x: cx + radius * Math.cos(currentAngle),
+                            y: cy + radius * Math.sin(currentAngle),
+                            color: ag.color
+                        };
+                    });
+
+                    // Draw lines from TAU (Supervisor) or Focus to others with tasks
+                    // The 12 o'clock active agent no longer shoots lasers to other agents
+                    const centerAgent = focusAgentId || "TAU";
+                    if (agentCoords[centerAgent]) {
+                        tasks.forEach(t => {
+                            if (t.progress < 100 && t.agentId !== centerAgent && agentCoords[t.agentId]) {
+                                ctx.beginPath();
+                                ctx.moveTo(agentCoords[centerAgent].x, agentCoords[centerAgent].y);
+                                ctx.lineTo(agentCoords[t.agentId].x, agentCoords[t.agentId].y);
+                                const grad = ctx.createLinearGradient(agentCoords[centerAgent].x, agentCoords[centerAgent].y, agentCoords[t.agentId].x, agentCoords[t.agentId].y);
+                                grad.addColorStop(0, agentCoords[centerAgent].color);
+                                grad.addColorStop(1, agentCoords[t.agentId].color);
+                                ctx.strokeStyle = grad;
+                                ctx.lineWidth = 1.5;
+                                ctx.globalAlpha = 0.6 + Math.sin(visualizerTime * 5) * 0.3; // pulsating laser
+                                ctx.stroke();
+                            }
+                        });
+                    }
+                    ctx.globalAlpha = 1.0;
+
+                    animId = requestAnimationFrame(loop);
+                };
+                animId = requestAnimationFrame(loop);
+                return () => cancelAnimationFrame(animId);
+            }, [radius, velocity, isProcessing, activeAgent, focusAgentId, tasks]);
+
+            const [agentsData, setAgentsData] = useState([]);
+            useEffect(() => {
+                let animId;
+                const updateAgents = () => {
+                    const rot = rotationRef.current;
+                    const WORKER_AGENTS = AGENTS.filter(a => a.id !== "TAU");
+                    const data = WORKER_AGENTS.map((ag, i) => {
+                        const baseAngle = (i / WORKER_AGENTS.length) * Math.PI * 2;
+                        const currentAngle = baseAngle + rot - Math.PI/2;
+                        let distFromTop = (baseAngle + rot) % (Math.PI * 2);
+                        if (distFromTop < 0) distFromTop += Math.PI * 2;
+                        if (distFromTop > Math.PI) distFromTop = Math.PI * 2 - distFromTop;
+                        return { ...ag, angle: currentAngle, dist: distFromTop };
+                    });
+                    
+                    // Add TAU back with fixed properties so it's handled in the UI mapping
+                    data.push({ ...AGENTS.find(a => a.id === "TAU"), isCenter: true });
+                    
+                    setAgentsData(data);
+                    
+                    let closest = data[0];
+                    for(let i=1; i<data.length; i++) if (data[i].dist < closest.dist) closest = data[i];
+                    setActiveAgent(prev => prev.id !== closest.id ? closest : prev);
+                    
+                    animId = requestAnimationFrame(updateAgents);
+                };
+                animId = requestAnimationFrame(updateAgents);
+                return () => cancelAnimationFrame(animId);
+            }, []);
+
+            useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, [chat]);
+
+            const agentMap = { "Supervisor": "TAU", "Kishi": "KISHI", "Ghost": "GHOST", "Atlas": "ATLAS", "Nexus": "NEXUS", "Vega": "VEGA", "Cypher": "CYPHER" };
+
+            const sendChat = async () => {
+                if (!input.trim() || isProcessing) return;
+                SFX.init(); SFX.play('click');
+                const msg = input.trim(); 
+                setInput(""); setIsProcessing(true);
+                const ts = new Date().toLocaleTimeString("tr-TR",{hour12:false,hour:"2-digit",minute:"2-digit"});
+                setChat(c => [...c, { id:nextId.current++, from:"user", text:msg, ts }]);
+
+                try {
+                    const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) });
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        for (const res of data.responses) {
+                            const uiAgentId = agentMap[res.agent] || "TAU";
+                            setChat(c => {
+                                SFX.play('message');
+                                return [...c, { id: nextId.current++, from: uiAgentId, text: res.content, ts: new Date().toLocaleTimeString("tr-TR",{hour12:false,hour:"2-digit",minute:"2-digit"}) }];
+                            });
+                            await new Promise(r => setTimeout(r, 600));
+                        }
+                    } else { setChat(c => { SFX.play('message'); return [...c, { id:nextId.current++, from:"TAU", text: "Hata: " + data.message, ts }]; }); }
+                } catch (err) { setChat(c => { SFX.play('message'); return [...c, { id:nextId.current++, from:"TAU", text: "Bağlantı hatası.", ts }]; }); } 
+                finally { setIsProcessing(false); }
+            };
+
+            const approveCommand = async (cmd) => {
+                SFX.play('click');
+                const ts = new Date().toLocaleTimeString("tr-TR",{hour12:false,hour:"2-digit",minute:"2-digit"});
+                setChat(c => [...c, { id: nextId.current++, from: "user", text: `> SİSTEM YÖNETİCİSİ ONAYI: \`${cmd}\` komutu onaylandı.`, ts }]);
+                setIsProcessing(true);
+                try {
+                    const response = await fetch('/api/execute_approved', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: cmd })
+                    });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        setChat(c => [...c, { id: nextId.current++, from: "CYPHER", text: "Komut sandbox ortamında başarıyla yürütüldü. Sonuç sisteme iletildi.", ts }]);
+                    } else {
+                        setChat(c => [...c, { id: nextId.current++, from: "CYPHER", text: "Komut hatası: " + data.message, ts }]);
+                    }
+                } catch(err) {
+                    setChat(c => [...c, { id: nextId.current++, from: "TAU", text: "Onay API bağlantı hatası.", ts }]);
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const rejectCommand = (cmd) => {
+                SFX.play('click');
+                const ts = new Date().toLocaleTimeString("tr-TR",{hour12:false,hour:"2-digit",minute:"2-digit"});
+                setChat(c => [...c, { id: nextId.current++, from: "user", text: `> SİSTEM YÖNETİCİSİ REDDİ: \`${cmd}\` komutu iptal edildi.`, ts }]);
+            };
+
+            const getActiveTask = (agentId) => tasks.find(t => t.agentId === agentId && t.progress < 100);
+            
+            const filteredTasks = tasks.filter(t => {
+                if (focusAgentId && t.agentId !== focusAgentId) return false;
+                if (tab === "ACTIVE") return t.progress < 100;
+                return t.progress >= 100;
+            });
+            const filteredChat = chat.filter(m => {
+                if (!focusAgentId) return true;
+                return m.from === "user" || m.from === "TAU" || m.from === focusAgentId;
+            });
+            const filteredPositions = positions.filter(p => !focusAgentId || p.agentId === focusAgentId);
+
+            return (
+                <React.Fragment>
+                    <style dangerouslySetInnerHTML={{__html: CSS}} />
+                    <div className={"app-container " + (isCinematic ? "cinematic" : "")} onClick={() => SFX.init()}>
+                        <div className="header">
+                            <div className="logo-area"><div className="logo-icon"></div>SYNTHIC AI</div>
+                            <div style={{display:'flex', gap: 15, alignItems: 'center'}}>
+                                <button className="cine-toggle" onClick={() => { SFX.play('click'); setIsCinematic(!isCinematic); }}>
+                                    {isCinematic ? "PANELİ AÇ" : "SİNEMATİK MOD"}
+                                </button>
+                                <div style={{color:"#8CA3B8", fontSize:12, fontFamily:"'Orbitron', sans-serif"}}>JARVIS CORE V2.2</div>
+                            </div>
+                        </div>
+
+                        <div className="main-content">
+                            <div className="stardust-layer">
+                                <canvas ref={canvasRef}></canvas>
+                                
+                                <div className="center-info">
+                                    <div className="status-text">SYSTEM OPTIMAL</div>
+                                    <div className="status-sub">Stardust Interface Active</div>
+                                    <div className="active-agent-desc" style={{borderColor: focusAgentId ? "#00D4FF" : activeAgent.color, color: focusAgentId ? "#FFF" : activeAgent.color}}>
+                                        [{focusAgentId ? focusAgentId : activeAgent.name}] {focusAgentId ? "FOKUS MODU" : "Sistem Odaklandı"}
+                                    </div>
+                                    {focusAgentId && (
+                                        <div><button className="focus-btn" onClick={() => { SFX.play('click'); setFocusAgentId(null); }}>Odaklamayı Temizle</button></div>
+                                    )}
+                                </div>
+
+                                {agentsData.map(ag => {
+                                    const isCenter = ag.isCenter;
+                                    const x = isCenter ? "50%" : "calc(50% + " + (radius * Math.cos(ag.angle)) + "px)";
+                                    const y = isCenter ? "50%" : "calc(50% + " + (radius * Math.sin(ag.angle)) + "px)";
+                                    
+                                    const isActive = activeAgent.id === ag.id && !isCenter;
+                                    const agentTask = getActiveTask(ag.id);
+                                    const isFocused = focusAgentId === ag.id;
+                                    const isDimmed = focusAgentId && !isFocused && !isCenter;
+                                    const hasAlert = alerts.some(a => a.agentId === ag.id);
+                                    
+                                    let orbClass = "agent-orb ";
+                                    if (isCenter) orbClass += "tau-center ";
+                                    if (isActive || isFocused) orbClass += "active ";
+                                    if (agentTask) orbClass += "has-task ";
+                                    if (isDimmed) orbClass += "dimmed ";
+                                    
+                                    return (
+                                        <div key={ag.id} className="orb-wrapper" style={{left: x, top: y, "--ac": ag.color}} onMouseEnter={() => SFX.play('hover')} onClick={() => { SFX.play('click'); setFocusAgentId(prev => prev === ag.id ? null : ag.id); }}>
+                                            <div 
+                                                className={orbClass}
+                                                style={{ borderColor: ag.color, color: isActive || isFocused ? "#FFF" : ag.color, boxShadow: isActive || isFocused ? "0 0 25px " + ag.color + ", inset 0 0 15px " + ag.color : "" }}
+                                            >
+                                                {ag.name.substring(0, 3)}
+                                            </div>
+                                            {hasAlert && <div className="agent-badge">!</div>}
+                                            <div className="agent-tooltip" style={{borderColor: ag.color}}>
+                                                <div style={{color: ag.color, fontWeight: 700, fontSize: 12}}>{ag.name}</div>
+                                                <div style={{color: "#8CA3B8", marginBottom: 4}}>{ag.role}</div>
+                                                {agentTask ? <div>"{agentTask.title}" ({agentTask.progress}%)</div> : <div style={{color: "#34D399"}}>Standby</div>}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                <div className="velocity-panel">
+                                    <div className="vp-header"><div className="vp-dot"></div>ORBITAL VELOCITY</div>
+                                    <input type="range" className="vp-slider" min="-2.0" max="2.0" step="0.05" value={velocity} onChange={(e) => setVelocity(parseFloat(e.target.value))} />
+                                    <div className="vp-value"><span>{velocity.toFixed(2)} rad/s</span></div>
+                                </div>
+                            </div>
+
+                            <div className="panels-layer">
+                                <div className="left-panel">
+                                    <div>
+                                        <div className="panel-title">// SİSTEM METRİKLERİ</div>
+                                        <div className="metric-block">
+                                            <div className="metric-row"><span>CPU YÜKÜ</span><span className="metric-val" style={{color: cpu > 80 ? "#F87171" : "#FFF"}}>{Math.round(cpu)}%</span></div>
+                                            <div className="metric-bar-bg"><div className="metric-bar-fill" style={{width: cpu + "%", background: cpu > 80 ? "#F87171" : "#00D4FF"}}></div></div>
+                                        </div>
+                                        <div className="metric-block">
+                                            <div className="metric-row"><span>BELLEK (MEM)</span><span className="metric-val">{Math.round(mem)}%</span></div>
+                                            <div className="metric-bar-bg"><div className="metric-bar-fill" style={{width: mem + "%", background: "#7C6FE0"}}></div></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{marginTop: 10, flex: 1, display: "flex", flexDirection: "column", overflow: "hidden"}}>
+                                        <div className="tabs">
+                                            <div className={"tab " + (tab === "ACTIVE" ? "active" : "")} onClick={() => { SFX.play('click'); setTab("ACTIVE"); }}>AKTİF GÖREVLER</div>
+                                            <div className={"tab " + (tab === "HISTORY" ? "active" : "")} onClick={() => { SFX.play('click'); setTab("HISTORY"); }}>GEÇMİŞ</div>
+                                        </div>
+                                        <div style={{flex: 1, overflowY:"auto"}}>
+                                            {filteredTasks.length === 0 && <div style={{color:"#64748B", fontSize:11, textAlign:"center", marginTop:20}}>Kayıt bulunamadı.</div>}
+                                            {filteredTasks.map(t => (
+                                                <div key={t.id} className="task-item">
+                                                    <div className="task-header">
+                                                        <span>{t.id}</span>
+                                                        <span style={{color: t.color, fontWeight:700}}>{t.agentId}</span>
+                                                    </div>
+                                                    <div className="task-title">{t.title}</div>
+                                                    <div className="task-bar-bg">
+                                                        <div className="task-bar-fill" style={{width: t.progress + "%", background: t.color}}></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    {alerts.length > 0 && (
+                                        <div style={{marginTop: "auto", borderTop: "1px solid rgba(239, 68, 68, 0.3)", paddingTop: 10}}>
+                                            <div className="panel-title" style={{color: "#EF4444", borderColor: "rgba(239, 68, 68, 0.3)"}}>// SİSTEM UYARILARI</div>
+                                            {alerts.map(a => (
+                                                <div key={a.id} style={{color: "#EF4444", fontSize: 11, background: "rgba(239, 68, 68, 0.1)", padding: "6px 10px", borderRadius: 4, marginBottom: 5}}>
+                                                    [{a.agentId}] {a.msg}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="right-panel">
+                                    <div className="panel-title">
+                                        <span>// TACTICAL COMMAND CONSOLE</span>
+                                        <span style={{color: isProcessing ? "#FBBF24" : "#34D399"}}>{isProcessing ? "PROCESSING..." : "READY"}</span>
+                                    </div>
+                                    
+                                    <div className="chat-messages" ref={chatRef}>
+                                        {filteredChat.length === 0 && <div style={{color:"#64748B", fontSize:11, textAlign:"center", marginTop:20}}>Bu ajana ait log bulunamadı.</div>}
+                                        {filteredChat.map(m => {
+                                            const isUser = m.from === "user";
+                                            const ag = AGENTS.find(a => a.id === m.from);
+                                            const color = ag ? ag.color : "#00D4FF";
+                                            
+                                            let textContent = m.text || "";
+                                            let commandRequest = null;
+                                            const reqMatch = textContent.match(/\[COMMAND_REQUEST:\s*(.*?)\]/);
+                                            if (reqMatch) {
+                                                commandRequest = reqMatch[1];
+                                                textContent = textContent.replace(reqMatch[0], "");
+                                            }
+                                            const htmlContent = marked.parse(textContent);
+
+                                            return (
+                                                <div key={m.id} className={"chat-msg " + (isUser ? "msg-user" : "msg-agent")} style={!isUser ? {borderColor: color, color: "#E0F2FE"} : {}}>
+                                                    {!isUser && (
+                                                        <div className="msg-header" style={{color: color}}><span style={{width:8, height:8, borderRadius:"50%", background: color, boxShadow: "0 0 5px " + color}}></span>{ag ? ag.name + " — " + ag.role : m.from}</div>
+                                                    )}
+                                                    {textContent.trim() && <div className="msg-content" dangerouslySetInnerHTML={{ __html: htmlContent }}></div>}
+                                                    
+                                                    {commandRequest && (
+                                                        <div style={{marginTop: 10, background: "rgba(249, 115, 22, 0.15)", border: "1px solid #F97316", padding: 10, borderRadius: 6}}>
+                                                            <div style={{color: "#F97316", fontSize: 11, fontWeight: 700, marginBottom: 5}}>⚠️ TERMİNAL İZİN İSTEĞİ (SANDBOX)</div>
+                                                            <div style={{fontFamily: "monospace", color: "#FFF", marginBottom: 10, fontSize: 12}}>{commandRequest}</div>
+                                                            <div style={{display: "flex", gap: 10}}>
+                                                                <button className="btn-action" style={{borderColor: "#34D399", color: "#34D399", padding: "4px 10px", flex: 1}} 
+                                                                        onClick={() => approveCommand(commandRequest)}>ONAYLA</button>
+                                                                <button className="btn-action" style={{borderColor: "#EF4444", color: "#EF4444", padding: "4px 10px", flex: 1}} 
+                                                                        onClick={() => rejectCommand(commandRequest)}>REDDET</button>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="msg-ts">{m.ts}</div>
+                                                </div>
+                                            );
+                                        })}
+                                        {isProcessing && (
+                                            <div className="chat-msg msg-agent" style={{opacity: 0.6, borderColor: "#00D4FF"}}><div className="msg-header" style={{color: "#00D4FF"}}>SYSTEM</div>Ajanlar analiz ediyor...</div>
+                                        )}
+                                    </div>
+
+                                    {filteredPositions.length > 0 && (
+                                        <div style={{marginTop: 10, borderTop: "1px solid rgba(0,212,255,0.1)", paddingTop: 10}}>
+                                            <div className="panel-title" style={{fontSize: 10, marginBottom: 5}}>// AÇIK POZİSYONLAR</div>
+                                            {filteredPositions.map(p => (
+                                                <div key={p.id} className="pos-card">
+                                                    <div className="pos-header"><span>{p.symbol} <span style={{color: "#34D399", fontSize:9, border:"1px solid", padding:"1px 4px", borderRadius:2}}>{p.type}</span></span><span style={{color: p.pnlColor, fontWeight: 700}}>{p.pnl}</span></div>
+                                                    <div className="pos-body"><span>Giriş: {p.entry}</span><span>Anlık: {p.current}</span></div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="chat-input-area">
+                                        <input type="text" className="chat-input" placeholder={focusAgentId ? `@${focusAgentId} için direkt komut...` : "Mesajınızı veya komutunuzu girin..."} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} />
+                                        <button className={"btn-action btn-mic " + (isRecording ? "recording" : "")} onClick={toggleMic} title="Sesli Komut">🎙️</button>
+                                        <button className="btn-action" onClick={sendChat} disabled={isProcessing}>GÖNDER</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </React.Fragment>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<StardustUI />);
+        /* {% endraw %} */
     </script>
 </body>
 </html>

@@ -7,6 +7,7 @@ import uvicorn
 
 from memory.vector_db import LongTermMemory
 from core.multi_agent_system import MultiAgentSystem
+from tools.os_agent import actually_execute_command
 
 app = FastAPI(title="The Agency Dashboard")
 
@@ -60,6 +61,37 @@ def chat_endpoint(req: ChatRequest):
         print(f"Sunucu Hatası: {str(e)}")
         import traceback
         traceback.print_exc()
+        return {"status": "error", "message": str(e)}
+
+@app.post("/api/evolve")
+def evolve_endpoint():
+    """Tetiklendiğinde gece optimizasyon (öğrenme) döngüsünü başlatır."""
+    if not ns:
+        return {"status": "error", "message": "Sistem hazır değil."}
+    
+    try:
+        report = ns.evolve()
+        return {"status": "success", "report": report}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+class ExecuteRequest(BaseModel):
+    command: str
+
+@app.post("/api/execute_approved")
+def execute_approved_endpoint(req: ExecuteRequest):
+    """Sadece kullanıcı arayüzden onayladığında çalışır."""
+    try:
+        # Arka planda güvenli (sandbox içinde) çalıştır ve sonucu al
+        result = actually_execute_command(req.command)
+        
+        # Sonucu direkt sohbete geri dönmek için MultiAgentSystem'in chat'ine enjekte edeceğiz
+        # Bunu başarmak için yapay zekaya "Komut onaylandı ve sonucu bu:" şeklinde bir mesaj yolluyoruz
+        if ns:
+            ns.run(f"[SİSTEM BİLDİRİMİ] Kullanıcı komutu onayladı. Komut Sonucu:\n{result}\n(Bunu kullanıcıya kısaca bildir.)")
+            
+        return {"status": "success", "result": result}
+    except Exception as e:
         return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":

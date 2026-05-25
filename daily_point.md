@@ -132,4 +132,24 @@ agents/
 
 ---
 
-*Son güncelleme: 14 Mayıs 2026 — 03:46*
+---
+
+## 🗓️ 15 Mayıs 2026
+
+### 🚀 Günün Başarısı: Profesyonel Risk ve İşlem Katmanı!
+Bugün Nexus ve Vega ajanları, basit simülasyondan profesyonel trading standartlarına yükseltildi.
+
+- **NEXUS (Risk Manager):** Artık **ATR (Average True Range)** bazlı dinamik Stop Loss hesaplayabiliyor. Piyasa oynaklığına göre riskini otomatik ayarlıyor.
+- **VEGA (Trade Executor):** İşlem öncesi bakiye kontrolü (`get_balance`) ve daha sıkı veri doğrulaması eklendi.
+- **ATLAS (Technical Analyst):** Diğer ajanların kullanımı için teknik verilere ATR indikatörü eklendi.
+- **Shared Blackboard:** Ajanlar arası veri paylaşımı (ATR, bakiye vb.) optimize edildi.
+
+### Teknik Detaylar
+- `tools/technical_analysis.py` → ATR hesaplaması eklendi.
+- `tools/risk_manager.py` → `calculate_risk_parameters` artık `atr` parametresini destekliyor.
+- `tools/trade_executor.py` → `get_balance` aracı eklendi, simülasyon çıktıları güzelleştirildi.
+- `core/multi_agent_system.py` → Ajanlar arası ATR aktarımı sağlandı.
+
+---
+
+*Son güncelleme: 15 Mayıs 2026 — 10:21*

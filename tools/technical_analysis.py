@@ -37,12 +37,13 @@ def get_technical_indicators(symbol: str, interval: str = "1h", period: str = "m
         # EMA
         df.ta.ema(length=20, append=True)
         df.ta.ema(length=50, append=True)
+        # ATR (Average True Range)
+        df.ta.atr(append=True)
 
         # Son değerleri al
         last_row = df.iloc[-1]
         
         # Sütun isimlerini pandas_ta'nın oluşturduğu formata göre eşle
-        # Not: pandas_ta genelde RSI_14, MACD_12_26_9 vb. isimler kullanır.
         rsi_col = [c for c in df.columns if 'RSI' in c][0]
         macd_col = [c for c in df.columns if 'MACD_' in c and 'MACDh' not in c and 'MACDs' not in c][0]
         macd_h_col = [c for c in df.columns if 'MACDh' in c][0]
@@ -50,6 +51,7 @@ def get_technical_indicators(symbol: str, interval: str = "1h", period: str = "m
         bb_lower = [c for c in df.columns if 'BBL' in c][0]
         ema20_col = [c for c in df.columns if 'EMA_20' in c][0]
         ema50_col = [c for c in df.columns if 'EMA_50' in c][0]
+        atr_col = [c for c in df.columns if 'ATR' in c][0]
 
         result = {
             "symbol": clean_symbol,
@@ -61,7 +63,8 @@ def get_technical_indicators(symbol: str, interval: str = "1h", period: str = "m
             "BB_Upper": round(float(last_row[bb_upper]), 2),
             "BB_Lower": round(float(last_row[bb_lower]), 2),
             "EMA20": round(float(last_row[ema20_col]), 2),
-            "EMA50": round(float(last_row[ema50_col]), 2)
+            "EMA50": round(float(last_row[ema50_col]), 2),
+            "ATR": round(float(last_row[atr_col]), 2)
         }
 
         return result
